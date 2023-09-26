@@ -4,7 +4,7 @@ LDFLAGS =
 
 all: recorrido 
 
-recorrido: main.o grafo.o
+recorrido: main.o grafo.o arbol.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 .PHONY: all clean

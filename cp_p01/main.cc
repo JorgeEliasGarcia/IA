@@ -8,11 +8,12 @@
 *
 */
 
-#include "grafo.h"
+#include "arbol.h"
 
 int main(int argc, char* argv[]) {
   const std::string kFicheroEntrada{argv[1]}; 
   Grafo grafo(kFicheroEntrada); 
+  Arbol arbol(grafo); 
   std::cout << "Introduzca un 0 para recorrido en profundidad. Introduzca cualquier otro "
                "número para recorrido en amplitud" << std::endl; 
   unsigned opcode; 
@@ -24,9 +25,9 @@ int main(int argc, char* argv[]) {
   std::cin >> nodo_final;  
   const std::string kFicheroSalida{argv[2]}; 
   if(opcode == 0) {
-    grafo.RecorridoProfundidad(nodo_inicial - 1, nodo_final - 1, kFicheroSalida); //Le restamos uno, ya que el grafo trabaja con vectores, que comienzan en la posición cero
+    arbol.RecorridoProfundidad(nodo_inicial - 1, nodo_final - 1, kFicheroSalida); //Le restamos uno, ya que el grafo trabaja con vectores, que comienzan en la posición cero
   } else {
-      grafo.RecorridoAmplitud(nodo_inicial -1, nodo_final - 1, kFicheroSalida);
+      arbol.RecorridoAmplitud(nodo_inicial -1, nodo_final - 1, kFicheroSalida);
     }
    
   
