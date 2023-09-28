@@ -34,9 +34,9 @@ class Arbol {
 
  private:    
   Grafo grafo; 
-  int HijoAnadir(const std::vector<int>& visitado, int id_nodo); 
+  int HijoAnadir(const std::vector<Nodo>& visitado, int id_nodo); 
   //Funciones que no acceden a los miembros privados, pero son necesarias para el correcto funcionamiento
-  bool YaAnadido(const std::vector<int>&, const int); 
+  bool YaAnadido(const std::vector<Nodo>&, const int); 
   bool NodoEnLaRama(const std::vector<Nodo>&, const int, const int);  
   void MostrarCamino(const std::vector<Nodo>&, const std::vector<int>&, const std::vector<int>&, const std::string&); 
   void MostrarCamminoAmplitud(const std::vector<Nodo>&, const int, const std::string&); 

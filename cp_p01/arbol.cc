@@ -16,30 +16,33 @@ void Arbol::RecorridoProfundidad(const int id_inicial, const int id_final, const
   Nodo nodo_inicial; 
   nodo_inicial.id_ = id_inicial; 
   std::vector<Nodo> recorrido; 
-  std::vector<int> pendiente; //USamos un vector de enteros, ya que solo nos interesa el id del nodo. Así ahorramos memoria. 
+  std::vector<Nodo> pendiente; //USamos un vector de enteros, ya que solo nos interesa el id del nodo. Así ahorramos memoria. 
   std::vector<int> generados; 
   recorrido.push_back(nodo_inicial); 
   std::vector<int> visitado;
   visitado.push_back(nodo_inicial.id_);  
   generados.push_back(nodo_inicial.id_); 
   bool final{false}; 
-  while(recorrido.size() != 0 && !final) {
-    int id_nodo_actual = recorrido[recorrido.size() - 1].id_; //El nodo actual es el de la última posición del vector. 
+  int id_nodo_actual = recorrido[recorrido.size() - 1].id_; //El nodo actual es el de la última posición del vector.
+  while(recorrido.size() != 0 && !final) { 
     if(id_nodo_actual == id_final) {
       final = true; 
       break; 
     }
     //Añadimos los hijos a pendientes, si no tiene hijos o ya han pertenecen todos al recorrido lo eliminamos
-    if(HijoAnadir(visitado, id_nodo_actual) != -1) {
+    if(HijoAnadir(recorrido, id_nodo_actual) != -1) {
       for(unsigned i{0}; i < grafo.grafo_[id_nodo_actual].size(); ++i) { //Añadimos los hijos al vector pendientes de estudio
-        if(!YaAnadido(visitado, grafo.grafo_[id_nodo_actual][i].id_)) { //Si ya lo estudiamos, no lo añadimos
-          pendiente.insert(pendiente.begin(), grafo.grafo_[id_nodo_actual][i].id_); //Añadimos el hijo a pendiente
-          if(!YaAnadido(generados,grafo.grafo_[id_nodo_actual][i].id_)) { generados.push_back(grafo.grafo_[id_nodo_actual][i].id_);}
+        if(!YaAnadido(recorrido, grafo.grafo_[id_nodo_actual][i].id_)) { //Si ya pertence a la rama, no lo añadimos
+          Nodo nodo_pendiente; 
+          nodo_pendiente.padre_ = id_nodo_actual; 
+          nodo_pendiente.id_ = grafo.grafo_[id_nodo_actual][i].id_; 
+          pendiente.insert(pendiente.begin(), nodo_pendiente); //Añadimos el hijo a pendiente
+          generados.push_back(grafo.grafo_[id_nodo_actual][i].id_);
         }
       }
       //El último en ser añadido por el iniciio a pendiente lo añadimos al recorrido
       Nodo nuevo_nodo; 
-      nuevo_nodo.id_ = pendiente[0]; 
+      nuevo_nodo.id_ = pendiente[0].id_ ; 
       for(unsigned i{0}; i < grafo.grafo_[id_nodo_actual].size(); ++i) { //Para determinar el coste consultamos el grafo
         if(grafo.grafo_[id_nodo_actual][i].id_ == nuevo_nodo.id_) {
           nuevo_nodo.coste_ = grafo.grafo_[id_nodo_actual][i].coste_; 
@@ -48,9 +51,34 @@ void Arbol::RecorridoProfundidad(const int id_inicial, const int id_final, const
       recorrido.push_back(nuevo_nodo); 
       visitado.push_back(nuevo_nodo.id_); 
       pendiente.erase(pendiente.begin()); 
+      id_nodo_actual = recorrido[recorrido.size() - 1].id_; //El nodo actual es el de la última posición del vector.
   
     } else { //En este caso, el nodo no era el final y no tiene hijos, por lo que lo eliminamos
+        bool eliminar{true}; 
+       // std::cout << "Entré por culpa de: " << recorrido[recorrido.size() - 1].id_ + 1 << std::endl; 
         recorrido.pop_back(); 
+        id_nodo_actual = recorrido[recorrido.size() - 1].id_;
+        //Eliminamos aquellos nodos que no tienen ningún hijo pendiente de revisión
+        while(eliminar && recorrido.size() != 0) { 
+        //  std::cout << "El nodo actual es: " << id_nodo_actual + 1 << std::endl; 
+          if(pendiente.size() == 0 || pendiente[0].padre_ != id_nodo_actual ) {
+            recorrido.pop_back(); 
+            id_nodo_actual = recorrido[recorrido.size() - 1].id_;
+          }
+          if(pendiente.size() != 0 && pendiente[0].padre_ == id_nodo_actual) {
+          //  std::cout << "Solucionado porque " << pendiente[0].id_ + 1<< " tiene como padre a: " << id_nodo_actual + 1 << std::endl; 
+            eliminar = false; 
+            id_nodo_actual = pendiente[0].id_;
+            Nodo solucion; 
+            solucion.id_ = pendiente[0].id_; 
+            solucion.padre_ = id_nodo_actual; 
+            recorrido.push_back(solucion); 
+            visitado.push_back(solucion.id_); 
+          //  std::cout << "El nuevo nodo actual es: " << pendiente[0].id_+ 1 << std::endl; 
+            pendiente.erase(pendiente.begin());  
+          }
+        }
+      //  std::cout << std::endl << std::endl; 
       }
 
     if(recorrido.size() == 0) { //Añado esta sentencia, ya que si el recorrido queda vacío se crea automáticamente un valor por defecto antes del inicio while y genera problemas
@@ -116,10 +144,10 @@ void Arbol::RecorridoAmplitud(const int id_inicial, const int id_final, const st
 }
 
 //Función para determinar que hijo añadir al recorrido. Devolverá -1 en caso de no haber candidatos
-int Arbol::HijoAnadir(const std::vector<int>& visitado, int id_nodo) {
+int Arbol::HijoAnadir(const std::vector<Nodo>& recorrido, int id_nodo) {
   int id_hijo{-1}; 
   for(unsigned i{0}; i < grafo.grafo_[id_nodo].size(); ++i) {
-    if(!YaAnadido(visitado, grafo.grafo_[id_nodo][i].id_)) {
+    if(!YaAnadido(recorrido, grafo.grafo_[id_nodo][i].id_)) {
       return grafo.grafo_[id_nodo][i].id_; 
     }
   }
@@ -128,9 +156,9 @@ int Arbol::HijoAnadir(const std::vector<int>& visitado, int id_nodo) {
 }
 
 //Función para comprobar si un nodo ya está añadido al vector recorrido
-bool Arbol::YaAnadido(const std::vector<int>& visitado, const int id) {
-  for(unsigned i{0}; i < visitado.size(); ++i) {
-    if(visitado[i] == id) {
+bool Arbol::YaAnadido(const std::vector<Nodo>& recorrido, const int id) {
+  for(unsigned i{0}; i < recorrido.size(); ++i) {
+    if(recorrido[i].id_ == id) {
       return true; 
     }
   }
