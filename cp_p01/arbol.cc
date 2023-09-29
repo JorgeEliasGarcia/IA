@@ -106,7 +106,7 @@ void Arbol::RecorridoAmplitud(const int id_inicial, const int id_final, const st
   //Identificaremos un grafo no conexo en caso de que en alguna iteración no se añada ningún hijo. En ese caso, habremos estudiado todos los nodos alcanzables
   //y, al no añadir ningún hijo y ya haber estudiado todos los nodos alcanzables, sabemos que no hay solución.
   bool hijo_anadido{false}; 
-  while(recorrido.size() != grafo.grafo_.size() && !final) { 
+  while(!final) { 
     hijo_anadido = false; 
     aux = ultimo_anadido;  
     long unsigned int kTamanyo{recorrido.size()}; 
@@ -268,4 +268,4 @@ bool Arbol::NodoEnLaRama(const std::vector<Nodo>& recorrido, const int id, const
   return false; 
 } 
 
-//FINALIZADISIMO
+//PRÁCTICA FINALIZADA
