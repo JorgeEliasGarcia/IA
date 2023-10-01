@@ -68,9 +68,17 @@ void Arbol::RecorridoProfundidad(const int id_inicial, const int id_final, const
           if(pendiente.size() != 0 && pendiente[0].padre_ == id_nodo_actual) {
           //  std::cout << "Solucionado porque " << pendiente[0].id_ + 1<< " tiene como padre a: " << id_nodo_actual + 1 << std::endl; 
             eliminar = false; 
-            id_nodo_actual = pendiente[0].id_;
             Nodo solucion; 
             solucion.id_ = pendiente[0].id_; 
+
+            //Añadimos el coste
+            for(unsigned i{0}; i < grafo.grafo_[id_nodo_actual].size(); ++i) {
+              if(grafo.grafo_[id_nodo_actual][i].id_ == solucion.id_) {
+                solucion.coste_ = grafo.grafo_[id_nodo_actual][i].coste_; 
+              }
+            }
+            
+            id_nodo_actual = pendiente[0].id_;
             solucion.padre_ = id_nodo_actual; 
             recorrido.push_back(solucion); 
             visitado.push_back(solucion.id_); 
