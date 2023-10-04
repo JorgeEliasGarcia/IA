@@ -27,7 +27,8 @@ int main(int argc, char* argv[]) {
   if(opcode == 0) {
     arbol.RecorridoProfundidad(nodo_inicial - 1, nodo_final - 1, kFicheroSalida); //Le restamos uno, ya que el grafo trabaja con vectores, que comienzan en la posición cero
   } else {
-      arbol.RecorridoAmplitud(nodo_inicial -1, nodo_final - 1, kFicheroSalida);
+      arbol.ModificacionAmplitud(nodo_inicial - 1, nodo_final - 1, kFicheroSalida); 
+     // arbol.RecorridoAmplitud(nodo_inicial -1, nodo_final - 1, kFicheroSalida);
     }
    
   

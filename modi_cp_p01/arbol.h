@@ -11,6 +11,7 @@
 #define ARBOL_H
 
 #include "grafo.h"
+#include <cstdlib>
 
 //Creamos la estructura Nodo, con el identificador del mismo y el coste hasta él desde el nodo padre
 typedef struct {
@@ -19,8 +20,24 @@ typedef struct {
   int padre_{0}; //Añadimos este campo para el recorrido en amplitud
   int pos_padre_{0}; //Al añadir este campo, identificamos en que posición estaba el padre, para distinguirlo inequívocamente. También podría hacerse con punteros
   unsigned profundidad_{0}; 
+  bool expandido{false}; //Lo usamos para la modificación
 
 } Nodo; 
+
+typedef struct {
+  int id_{0}; 
+  int pos_nodo_recorrido{0}; 
+  double t_{0.0}; 
+ 
+} NodoT; 
+
+typedef struct {
+  int id_{0}; 
+  int pos_nodo_recorrido{0}; 
+  double p_{0.0}; 
+ 
+} NodoP; 
+
 
 class Arbol {
  public: 
@@ -30,7 +47,10 @@ class Arbol {
   void RecorridoProfundidad(const int, const int, const std::string& fichero_salida);  
 
   //Función para mostrar el recorrido en amplitud entre 2 nodos
-  void RecorridoAmplitud(const int, const int, const std::string& fichero_salida); 
+ // void RecorridoAmplitud(const int, const int, const std::string& fichero_salida); 
+
+  //Modificación
+  void ModificacionAmplitud(const int, const int, const std::string& fichero_salida); 
 
  private:    
   Grafo grafo; 

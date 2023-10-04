@@ -97,7 +97,150 @@ void Arbol::RecorridoProfundidad(const int id_inicial, const int id_final, const
   MostrarCamino(recorrido, visitado, generados, fichero_salida); 
 } 
 
+//Función para determinar el coste del camino seguido
+int DeterminarCoste(const std::vector<Nodo>& recorrido, int id_nodo) {
+  bool final{false}; 
+  int coste{0}; 
+  int pos_nodo{id_nodo}; 
+  //Si pos_id_final == 0, significa que no exisite camino
+  while(!final) {
+    coste += recorrido[pos_nodo].coste_; 
+    if(recorrido[pos_nodo].pos_padre_ == -1) { //if(recorrido[pos_nodo].id_ == recorrido[0].id_) { 
+      final = true;
+    } else {  //Conocemos la posición en el vector del nodo padre
+        pos_nodo = recorrido[pos_nodo].pos_padre_; 
+      }
+    if(final) {break; }
+  }
+  
+  return coste; 
+}
 
+//Función para determinar el nodo a expandir
+int DeterminarNodoExpandir(const std::vector<Nodo>& recorrido) {
+
+  std::vector<NodoT> t; 
+  for(unsigned i{0}; i < recorrido.size(); ++i) {
+    if(!recorrido[i].expandido) {
+      int coste_actual = DeterminarCoste(recorrido, i); 
+      NodoT nodo; 
+      nodo.id_ = recorrido[i].id_; 
+      nodo.pos_nodo_recorrido = i; //Para diferenciar los nodos
+      if(coste_actual != 0) {
+        nodo.t_ = 1 / coste_actual; 
+      } else {
+          nodo.t_ = 0.0; 
+        }
+      t.push_back(nodo); 
+    }
+
+  }
+  
+  //Determinamos el valor del denominador
+  double denominador{0.0}; 
+  for(unsigned i{0}; i < t.size(); ++i) {
+    denominador += t[i].t_; 
+  }
+
+  //Determinamos la probabilidad de cada nodo
+  std::vector<NodoP> p; 
+  for(unsigned i{0}; i < t.size(); ++i) {
+    NodoP nodo; 
+    nodo.id_ = t[i].id_; 
+    nodo.pos_nodo_recorrido = t[i].pos_nodo_recorrido; //Para diferenciar los nodos
+    nodo.p_ = t[i].t_ / denominador; 
+  }
+  
+  //Creamos valor random del 0 al 1
+  double numero_aleatorio = (1 + rand() % 100) % 100; 
+
+  int pos_nodo_devolver{0}; 
+  
+  double probabilidad_acumulada{0.0}; 
+  for(unsigned i{0}; i < p.size(); ++i) {
+    if(i > 0) {
+      probabilidad_acumulada = p[i].p_ + p[i - 1].p_; 
+    } else {
+      probabilidad_acumulada = p[i].p_; 
+    }
+    if(probabilidad_acumulada >= numero_aleatorio) {
+      pos_nodo_devolver = p[i].pos_nodo_recorrido; 
+      break; 
+    }
+  }
+  
+  std::cout << pos_nodo_devolver << std::endl; 
+  return pos_nodo_devolver; 
+}
+
+//Función para dterminar en la modificación si hay camino posible
+bool OpcionVigente(const std::vector<Nodo>& recorrido) {
+  for(unsigned i{0}; i < recorrido.size(); ++i) {
+    if(!recorrido[i].expandido) {return true; }
+  }
+
+  return false; 
+}
+
+//Modificación
+void Arbol::ModificacionAmplitud(const int id_inicial, const int id_final, const std::string& fichero_salida) {
+  
+  Nodo nodo_inicial; 
+  nodo_inicial.id_ = id_inicial; //EL coste para llegar hasta él mismo será cero
+  nodo_inicial.pos_padre_ = -1; 
+  std::vector<Nodo> recorrido; 
+  recorrido.push_back(nodo_inicial); 
+  bool final{false}; 
+  //Los generados serán todos los presentes en recorrido. Los inspeccionados todos aquellos hasta la posición ultimo_añadido y 
+  //el camino se realiza partiendo de la posicion ulitmo_añadadido y volviendo atrás gracias al campo padre_ del nodo
+  unsigned pos_id_final{0};
+  //Identificaremos un grafo no conexo en caso de que en alguna iteración no se añada ningún hijo. En ese caso, habremos estudiado todos los nodos alcanzables
+  //y, al no añadir ningún hijo y ya haber estudiado todos los nodos alcanzables, sabemos que no hay solución.
+  while(!final) { 
+
+    //Determinamos que hijo exapandir
+    int pos_nodo_expandir{DeterminarNodoExpandir(recorrido)}; 
+    if(recorrido[pos_nodo_expandir].id_ == id_final) {
+      final = true; 
+      pos_id_final = pos_nodo_expandir; 
+      break;  
+    }
+    recorrido[pos_nodo_expandir].expandido = true; 
+    int i = pos_nodo_expandir; //Para reutilizar código
+
+    //Si no era el nodo final, generamos los hijos que no estén en la rama. 
+    for(unsigned j{0}; j < grafo.grafo_[recorrido[i].id_].size(); ++j) {
+      Nodo nuevo_nodo;
+      nuevo_nodo.id_ = grafo.grafo_[recorrido[i].id_][j].id_;
+      if(!NodoEnLaRama(recorrido, nuevo_nodo.id_, i)) {  
+        nuevo_nodo.pos_padre_ = i; //Almacenamos en qué posición está el padre. 
+        nuevo_nodo.coste_ = grafo.grafo_[recorrido[i].id_][j].coste_; 
+        nuevo_nodo.padre_ = recorrido[i].id_; 
+        nuevo_nodo.profundidad_ = (recorrido[i].profundidad_ + 1); 
+        recorrido.push_back(nuevo_nodo);
+      }
+    }
+
+
+    if(final) {break; }
+  
+    if(!OpcionVigente(recorrido)) {
+      break; 
+    } 
+  }
+
+  MostrarCamminoAmplitud(recorrido, pos_id_final, fichero_salida); 
+
+}
+
+  // MostrarCamminoAmplitud(recorrido, pos_id_final, fichero_salida); 
+
+
+
+
+
+
+/*
 //Función para mostrar el recorrido en amplitud entre 2 nodos
 void Arbol::RecorridoAmplitud(const int id_inicial, const int id_final, const std::string& fichero_salida) {
   Nodo nodo_inicial; 
@@ -109,7 +252,7 @@ void Arbol::RecorridoAmplitud(const int id_inicial, const int id_final, const st
   unsigned ultimo_anadido{0}; 
   //Los generados serán todos los presentes en recorrido. Los inspeccionados todos aquellos hasta la posición ultimo_añadido y 
   //el camino se realiza partiendo de la posicion ulitmo_añadadido y volviendo atrás gracias al campo padre_ del nodo
-  unsigned pos_id_final{0};
+  //unsigned pos_id_final{0};
   unsigned aux{ultimo_anadido}; 
   //Identificaremos un grafo no conexo en caso de que en alguna iteración no se añada ningún hijo. En ese caso, habremos estudiado todos los nodos alcanzables
   //y, al no añadir ningún hijo y ya haber estudiado todos los nodos alcanzables, sabemos que no hay solución.
@@ -136,8 +279,7 @@ void Arbol::RecorridoAmplitud(const int id_inicial, const int id_final, const st
           nuevo_nodo.padre_ = recorrido[i].id_; 
           nuevo_nodo.profundidad_ = (recorrido[i].profundidad_ + 1); 
           recorrido.push_back(nuevo_nodo);
-          hijo_anadido = true; 
-        }
+          hijo_anadido = true; int
       }
       if(final) {break; }
       ++ultimo_anadido; 
@@ -148,8 +290,8 @@ void Arbol::RecorridoAmplitud(const int id_inicial, const int id_final, const st
 
   }
 
-  MostrarCamminoAmplitud(recorrido, pos_id_final, fichero_salida); 
-}
+  //MostrarCamminoAmplitud(recorrido, pos_id_final, fichero_salida); 
+}*/
 
 //Función para determinar que hijo añadir al recorrido. Devolverá -1 en caso de no haber candidatos
 int Arbol::HijoAnadir(const std::vector<Nodo>& recorrido, int id_nodo) {
