@@ -4,7 +4,7 @@ LDFLAGS =
 
 all: laberinto 
 
-laberinto: main.o laberinto.o
+laberinto: main.o laberinto.o arbol.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 .PHONY: all clean

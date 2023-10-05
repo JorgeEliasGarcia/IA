@@ -11,9 +11,12 @@
 #define LABERINTO_H
 
 #include "matrix_t.h"
+#include <fstream>
+
+//Forward declaration
+class Arbol; 
 
 #define TRACE(x) cout << (#x) << "= " << (x) << endl
-
 
 // indica que no hay obstáculo
 #define PASS_ID 0
@@ -38,13 +41,13 @@ using namespace AED;
 typedef matrix_t<short> matrix_t_short;
 typedef matrix_t<bool> matrix_t_bool;
 
-// enumera las direcciones Norte, Este, Sur y Oeste (West)
-enum direction_t { N, E, S, W };
+// enumera las direcciones Norte, Este, Sur, Oeste (West), Noreste, Noroeste, Sureste y Suroeste
+enum direction_t { N, E, S, W, NE, NW, SE, SW };
 
 // define vectores de desplazamiento en las 4 direcciones:
-//                    N   E  S   W
-const short i_d[] = {-1, 0, 1, 0};
-const short j_d[] = {0, 1, 0, -1};
+//                    N  E  S  W  NE  NW  SE SW
+const short i_d[] = {-1, 0, 1, 0, -1, -1, 1, 1};
+const short j_d[] = {0, 1, 0, -1, 1, -1, 1, -1};
 
 class Laberinto {
  private:
@@ -65,8 +68,10 @@ class Laberinto {
   std::istream& read(std::istream& = cin);
   std::ostream& write(std::ostream& = cout) const;
 
+  friend class Arbol; 
+
  private:
-  bool is_ok_(const int, const int) const;
+  bool CasillaTransitable(const int, const int) const;
   bool solve_(const int, const int);
   unsigned int contador_ = 0; 
 };

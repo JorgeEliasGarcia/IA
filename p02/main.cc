@@ -7,13 +7,18 @@
                 A*
 */
 
-#include "laberinto.h"
+#include "arbol.h"
 
 int main(int argc, char* argv[]) {
 
   Laberinto laberinto;
-  std::cin >> laberinto;
+  std::ifstream fichero_entrada{argv[1], std::ios_base::in}; 
+
+  fichero_entrada >> laberinto;
   std::cout << laberinto << endl;
 
+  Arbol arbol(laberinto); 
+  arbol.BusquedaA(); 
+  
   return 0;     
 }

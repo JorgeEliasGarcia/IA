@@ -14,6 +14,14 @@ Laberinto::Laberinto() : matrix_(), i_start_(-1), j_start_(-1), i_end_(-1), j_en
 //Destructor
 Laberinto::~Laberinto() {}
 
+//Función para determinar si una casilla es transitable
+bool Laberinto::CasillaTransitable(const int i, const int j) const {
+  return (i >= 1 && j >= 1 && i <= matrix_.get_m() && j <= matrix_.get_n() &&
+          matrix_(i, j) != WALL_ID );
+}
+
+
+
 //Sobrecarga del operador de entrada
 std::istream& operator>>(std::istream& is, Laberinto& laberinto) { return laberinto.read(is); }
 
