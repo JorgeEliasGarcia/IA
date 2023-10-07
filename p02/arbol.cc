@@ -20,6 +20,49 @@ unsigned  Arbol::FuncionHeuristica(const Nodo& nodo) const {
   return (abs(recorrido_horizontal) + abs(recorrido_vertical)) * 5; 
 }
 
+//Función para cambiar el nodo inicial y final
+void Arbol::ModificarNodoInicialFinal() {
+  
+  std::cout << "Introduzca la fila del nodo incial: "; 
+  int inicio_i{0};
+  std::cin >> inicio_i; 
+  std::cout << "Introduzca la columna del nodo incial: "; 
+  int inicio_j{0};
+  std::cin >> inicio_j; 
+  if(inicio_i <= 0 || inicio_j<= 0 || inicio_i > laberinto_.matrix_.get_m() || inicio_j > laberinto_.matrix_.get_n()) {
+    std::cout << "ERROR. Casilla no existente, se resolverá con las casillas especificadas en el fichero" << std::endl; 
+    return; 
+  }
+
+  std::cout << "Introduzca la final del nodo final: "; 
+  int final_i{0}; 
+  std::cin >> final_i; 
+  std::cout << "Introduzca la columna del nodo final: "; 
+  int final_j{0};
+  std::cin >> final_j; 
+  if(final_i <= 0 || final_j<= 0 || final_i > laberinto_.matrix_.get_m() || final_j > laberinto_.matrix_.get_n()) {
+    std::cout << "ERROR. Casilla no existente, se resolverá con las casillas especificadas en el fichero" << std::endl; 
+    return; 
+  }
+  //En este caso las casillas son correctas, por lo que modificamos el laberinto. Donde se encontraban las anteriores entrada y salida se colocará un obstáculo
+  laberinto_.matrix_(inicio_i, inicio_j) = 3; //Modificamos el laberinto
+  laberinto_.matrix_(final_i, final_j) = 4;
+  laberinto_.matrix_(laberinto_.i_start_, laberinto_.j_start_) = 1; 
+  laberinto_.matrix_(laberinto_.i_end_, laberinto_.j_end_) = 1; 
+  laberinto_.i_start_ = inicio_i; 
+  laberinto_.j_start_ = inicio_j; 
+  laberinto_.i_end_ = final_i; 
+  laberinto_.j_end_ = final_j; 
+  //Modificamos el nodo inicial y final
+  nodo_inicial_.i = laberinto_.i_start_; 
+  nodo_inicial_.j = laberinto_.j_start_; 
+  nodo_inicial_.pos_padre_ = -1; 
+  nodo_final_.i = laberinto_.i_end_; 
+  nodo_final_.j = laberinto_.j_end_; //Solo almacenamos las coordenadas finales para compararlo durante el recorrido
+
+  nodo_inicial_.f = FuncionHeuristica(nodo_inicial_); //Es igual a la función heurística, ja que g(n) = 0. 
+}
+
 //Fución para implementar la búsqueda A* j resolver el laberinto
 void Arbol::BusquedaA()  {
   abiertos_.push_back(nodo_inicial_); 
@@ -82,11 +125,30 @@ void Arbol::MostrarResultado(const int pos_nodo_final) const {
 
           if(final) {break; }
         }
-      for(unsigned i{0}; i < camino_final.size(); ++i) {
+      for(unsigned i{0}; i < camino_final.size() - 1; ++i) {
         std::cout << "(" << camino_final[i].i << "," << camino_final[i].j << ") --> "; 
       }  
-      std::cout << std::endl; 
+      std::cout << "(" << camino_final[camino_final.size() - 1].i << "," << camino_final[camino_final.size() - 1].j << ")" << std::endl;  
+      std::cout << "Coste del camino: " << camino_final[camino_final.size() - 1].g << std::endl << std::endl; 
     }
+  
+  //Mostramos los nodos visitados. Estos cerán los nodos cerrados
+  std::cout << "Nodos visitados: "; 
+  for(unsigned i{0}; i < cerrados_.size() - 1; ++i) {
+    std::cout << "(" << cerrados_[i].i << "," << cerrados_[i].j << "), "; 
+  }
+  std::cout << "(" << cerrados_[cerrados_.size() - 1].i << "," << cerrados_[cerrados_.size() - 1].j << ")" << std::endl << std::endl; 
+  
+  //Finalmente, mostramos los nodos generados. Estos serán los nodos cerrados más los nodos abiertos
+  std::cout << "Nodos generados: "; 
+  for(unsigned i{0}; i < cerrados_.size(); ++i) {
+    std::cout << "(" << cerrados_[i].i << "," << cerrados_[i].j << "), "; 
+  }
+
+  for(unsigned i{0}; i < abiertos_.size() - 1; ++i) {
+    std::cout << "(" << abiertos_[i].i << "," << abiertos_[i].j << "), "; 
+  }
+  std::cout << "(" << abiertos_[abiertos_.size() - 1].i << "," << abiertos_[abiertos_.size() - 1].j << ")" << std::endl; 
 
 }
 

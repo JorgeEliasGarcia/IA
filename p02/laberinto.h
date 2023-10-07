@@ -16,8 +16,6 @@
 //Forward declaration
 class Arbol; 
 
-#define TRACE(x) cout << (#x) << "= " << (x) << endl
-
 // indica que no hay obstáculo
 #define PASS_ID 0
 // indica obstáculo
@@ -39,7 +37,6 @@ class Arbol;
 using namespace AED;
 
 typedef matrix_t<short> matrix_t_short;
-typedef matrix_t<bool> matrix_t_bool;
 
 // enumera las direcciones Norte, Este, Sur, Oeste (West), Noreste, Noroeste, Sureste y Suroeste
 enum direction_t { N, E, S, W, NE, NW, SE, SW };
@@ -62,9 +59,6 @@ class Laberinto {
   Laberinto(void);
   ~Laberinto();
 
-  // método para resolver el laberinto y que invoca al otro método recursivo
-  bool solve(void);
-
   std::istream& read(std::istream& = cin);
   std::ostream& write(std::ostream& = cout) const;
 
@@ -72,8 +66,6 @@ class Laberinto {
 
  private:
   bool CasillaTransitable(const int, const int) const;
-  bool solve_(const int, const int);
-  unsigned int contador_ = 0; 
 };
 
 std::istream& operator>>(std::istream&, Laberinto&);

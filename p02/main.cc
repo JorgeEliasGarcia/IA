@@ -10,14 +10,17 @@
 #include "arbol.h"
 
 int main(int argc, char* argv[]) {
-
   Laberinto laberinto;
   std::ifstream fichero_entrada{argv[1], std::ios_base::in}; 
-
   fichero_entrada >> laberinto;
-  std::cout << laberinto << endl;
-
   Arbol arbol(laberinto); 
+  unsigned opcode{0}; 
+  std::cout << "Si desea cambiar las casillas de entrada y salida introduzca un 1. Introduzca cualquier otro número natural para "
+               "continuar con las casillas especificadas en el fichero" << std::endl; 
+  std::cin >> opcode; 
+  if(opcode == 1) {
+    arbol.ModificarNodoInicialFinal(); 
+  }
   arbol.BusquedaA(); 
   
   return 0;     

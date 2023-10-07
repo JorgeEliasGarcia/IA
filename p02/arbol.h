@@ -37,7 +37,10 @@ class Arbol {
     nodo_inicial_.f = FuncionHeuristica(nodo_inicial_); //Es igual a la función heurística, ja que g(n) = 0. 
     
   }
-
+  
+  //Función para cambiar el nodo inicial y final
+  void ModificarNodoInicialFinal(); 
+  
   void BusquedaA();
   void MostrarResultado(const int) const; 
 
