@@ -22,7 +22,7 @@ unsigned  Arbol::FuncionHeuristica(const Nodo& nodo) const {
 
 //Función para cambiar el nodo inicial y final
 void Arbol::ModificarNodoInicialFinal() {
-  
+
   std::cout << "Introduzca la fila del nodo incial: "; 
   int inicio_i{0};
   std::cin >> inicio_i; 
@@ -69,15 +69,17 @@ void Arbol::BusquedaA()  {
   camino_.push_back(nodo_inicial_); 
   bool final{false}; 
   Nodo nodo_actual = nodo_inicial_; 
+  int pos_nodo_final{0}; 
 
   while(abiertos_.size() != 0 && !final) {
     //Inspeccionamos el nodo actual es el nodo final
     if(nodo_actual.i == nodo_final_.i && nodo_actual.j == nodo_final_.j) { //En este caso, hemos llegado a la casilla de salida
       final = true; 
+      pos_nodo_final = nodo_actual.pos_v_; 
       break; 
     }
     //En este caso no era el nodo final, asi que generamos los hijos. Para ello, debe tener alguna casilla a la que moverse que no pertenezca ja a la rama
-    for (int k{N}; k <= SW; ++k) { //Inspeccionamos las 4 alternativas: Norte, Sur, Este j Oeste
+    for (int k{N}; k <= SW; ++k) { //Inspeccionamos las 8 alternativas: Norte, Sur, Este, Oeste, NorEste, NorOeste, SurEste y SurOeste
       Nodo nodo_hijo; 
       nodo_hijo.i = nodo_actual.i + i_d[k]; 
       nodo_hijo.j = nodo_actual.j + j_d[k];
@@ -100,11 +102,12 @@ void Arbol::BusquedaA()  {
     //Hemos añadido los hijos del nodo actual al árbol, por lo que lo cerramos
     cerrados_.push_back(nodo_actual); 
     abiertos_.erase(abiertos_.begin() + PosicionNodoEnAbiertos(nodo_actual)); 
-    nodo_actual = DeterminarNuevoNodoActual(); 
-    
+    if(abiertos_.size() != 0) { 
+      nodo_actual = DeterminarNuevoNodoActual(); 
+    }       
   }
   
-  MostrarResultado(nodo_actual.pos_v_); 
+  MostrarResultado(pos_nodo_final); 
 }
 
 //Función para mostrar el resultado de la búqueda. Recibimos en que posición del vector camino tenemos al nodo final
@@ -141,14 +144,18 @@ void Arbol::MostrarResultado(const int pos_nodo_final) const {
   
   //Finalmente, mostramos los nodos generados. Estos serán los nodos cerrados más los nodos abiertos
   std::cout << "Nodos generados: "; 
-  for(unsigned i{0}; i < cerrados_.size(); ++i) {
+  for(unsigned i{0}; i < cerrados_.size() - 1; ++i) {
     std::cout << "(" << cerrados_[i].i << "," << cerrados_[i].j << "), "; 
   }
+  std::cout << "(" << cerrados_[cerrados_.size() - 1].i << "," << cerrados_[cerrados_.size() - 1].j << ")" << std::endl << std::endl; 
 
-  for(unsigned i{0}; i < abiertos_.size() - 1; ++i) {
-    std::cout << "(" << abiertos_[i].i << "," << abiertos_[i].j << "), "; 
+  if(abiertos_.size() > 0) {
+    for(unsigned i{0}; i < abiertos_.size() - 1; ++i) {
+      std::cout << ", (" << abiertos_[i].i << "," << abiertos_[i].j << ")"; 
+    }
+    std::cout << ", (" << abiertos_[abiertos_.size() - 1].i << ", " << abiertos_[abiertos_.size() - 1].j << ")" << std::endl; 
   }
-  std::cout << "(" << abiertos_[abiertos_.size() - 1].i << "," << abiertos_[abiertos_.size() - 1].j << ")" << std::endl; 
+
 
 }
 
