@@ -76,6 +76,8 @@ void Arbol::BusquedaA()  {
     if(nodo_actual.i == nodo_final_.i && nodo_actual.j == nodo_final_.j) { //En este caso, hemos llegado a la casilla de salida
       final = true; 
       pos_nodo_final = nodo_actual.pos_v_; 
+      cerrados_.push_back(nodo_actual); 
+      abiertos_.erase(abiertos_.begin() + PosicionNodoEnAbiertos(nodo_actual)); 
       break; 
     }
     //En este caso no era el nodo final, asi que generamos los hijos. Para ello, debe tener alguna casilla a la que moverse que no pertenezca ja a la rama
