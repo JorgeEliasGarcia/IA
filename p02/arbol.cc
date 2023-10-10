@@ -81,7 +81,7 @@ void Arbol::ModificarNodoInicialFinal() {
   nodo_inicial_.f = FuncionHeuristica(nodo_inicial_); //Es igual a la función heurística, ja que g(n) = 0. 
 }
 
-//Fución para implementar la búsqueda A* j resolver el laberinto
+//Fución para implementar la búsqueda A* y resolver el laberinto
 void Arbol::BusquedaA()  {
   abiertos_.push_back(nodo_inicial_); 
   camino_.push_back(nodo_inicial_); 
