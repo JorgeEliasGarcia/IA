@@ -27,7 +27,7 @@ typedef struct {
 
 class Arbol {
  public: 
-  Arbol(const Laberinto& laberinto) : laberinto_{laberinto} { 
+  Arbol(const Laberinto& laberinto, const std::string& fichero) : laberinto_{laberinto}, nombre_fichero_salida_{fichero} { 
     nodo_inicial_.i = laberinto_.i_start_; 
     nodo_inicial_.j = laberinto.j_start_; 
     nodo_inicial_.pos_padre_ = -1; 
@@ -42,7 +42,7 @@ class Arbol {
   void ModificarNodoInicialFinal(); 
   
   void BusquedaA();
-  void MostrarResultado(const int) const; 
+  void MostrarResultado(const int); 
 
  private: 
   Laberinto laberinto_;
@@ -52,10 +52,13 @@ class Arbol {
   Nodo nodo_inicial_; 
   Nodo nodo_final_;  
   unsigned FuncionHeuristica(const Nodo&) const; 
+  unsigned FuncionHeuristicaAlternativa(const Nodo&) const; 
   bool NodoEnLaRama(const Nodo&) const; 
   void AnadirNodoAbierto(const Nodo&); 
+  bool NodoDescartado(const Nodo&) const; 
   const Nodo DeterminarNuevoNodoActual() const; 
   unsigned PosicionNodoEnAbiertos(const Nodo&) const; 
+  std::string nombre_fichero_salida_;  
 
 }; 
 

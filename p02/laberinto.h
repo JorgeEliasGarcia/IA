@@ -31,8 +31,8 @@ class Arbol;
 #define WALL_CHR "█"
 #define PASS_CHR " "
 #define PATH_CHR "·"
-#define START_CHR "A"
-#define END_CHR "B"
+#define START_CHR "3"
+#define END_CHR "4"
 
 using namespace AED;
 

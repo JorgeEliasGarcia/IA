@@ -17,7 +17,25 @@ bool MismoNodo(const Nodo& a, const Nodo& nodo) {
 unsigned  Arbol::FuncionHeuristica(const Nodo& nodo) const {
   int recorrido_horizontal = nodo_final_.i - nodo.i;
   int recorrido_vertical = nodo_final_.j - nodo.j; 
-  return (abs(recorrido_horizontal) + abs(recorrido_vertical)) * 5; 
+  return (abs(recorrido_horizontal) + abs(recorrido_vertical)) * 3; 
+}
+
+//Implementación de la función heurística alternativa. Para ello tendremos en cuenta también los movimientos diagonales. Realizaremos tantos movimientos
+//diagonales como podamos para acercanos lo máximo a la casilla de final. También le agregaremos el costo de los movimientos laterales/horizontales necesarios
+unsigned Arbol::FuncionHeuristicaAlternativa(const Nodo& nodo) const {
+  int i_actual = nodo.i; 
+  int j_actual = nodo.j; 
+  unsigned mov_diagonales{0}; 
+  unsigned mov_lat_hor{0};  
+  while(i_actual != nodo_final_.i && j_actual != nodo_final_.j) {
+    if(i_actual != nodo_final_.j && j_actual != nodo_final_.j) {
+      if(i_actual < nodo_final_.i) 
+
+      ++mov_diagonales; 
+    }
+  }
+  unsigned x = 3; 
+  return x; 
 }
 
 //Función para cambiar el nodo inicial y final
@@ -34,7 +52,7 @@ void Arbol::ModificarNodoInicialFinal() {
     return; 
   }
 
-  std::cout << "Introduzca la final del nodo final: "; 
+  std::cout << "Introduzca la fila del nodo final: "; 
   int final_i{0}; 
   std::cin >> final_i; 
   std::cout << "Introduzca la columna del nodo final: "; 
@@ -45,10 +63,10 @@ void Arbol::ModificarNodoInicialFinal() {
     return; 
   }
   //En este caso las casillas son correctas, por lo que modificamos el laberinto. Donde se encontraban las anteriores entrada y salida se colocará un obstáculo
-  laberinto_.matrix_(inicio_i, inicio_j) = 3; //Modificamos el laberinto
-  laberinto_.matrix_(final_i, final_j) = 4;
   laberinto_.matrix_(laberinto_.i_start_, laberinto_.j_start_) = 1; 
-  laberinto_.matrix_(laberinto_.i_end_, laberinto_.j_end_) = 1; 
+  laberinto_.matrix_(laberinto_.i_end_, laberinto_.j_end_) = 1;
+  laberinto_.matrix_(inicio_i, inicio_j) = 3; //Modificamos el laberinto 
+  laberinto_.matrix_(final_i, final_j) = 4; 
   laberinto_.i_start_ = inicio_i; 
   laberinto_.j_start_ = inicio_j; 
   laberinto_.i_end_ = final_i; 
@@ -59,7 +77,7 @@ void Arbol::ModificarNodoInicialFinal() {
   nodo_inicial_.pos_padre_ = -1; 
   nodo_final_.i = laberinto_.i_end_; 
   nodo_final_.j = laberinto_.j_end_; //Solo almacenamos las coordenadas finales para compararlo durante el recorrido
-
+   
   nodo_inicial_.f = FuncionHeuristica(nodo_inicial_); //Es igual a la función heurística, ja que g(n) = 0. 
 }
 
@@ -86,11 +104,11 @@ void Arbol::BusquedaA()  {
       nodo_hijo.i = nodo_actual.i + i_d[k]; 
       nodo_hijo.j = nodo_actual.j + j_d[k];
       nodo_hijo.pos_padre_ = nodo_actual.pos_v_; 
-      if(laberinto_.CasillaTransitable(nodo_hijo.i, nodo_hijo.j) && !NodoEnLaRama(nodo_hijo)) { //Hemos encontrado un hijo que no pertenece a la rama
+      if(laberinto_.CasillaTransitable(nodo_hijo.i, nodo_hijo.j) && !NodoEnLaRama(nodo_hijo) && !NodoDescartado(nodo_hijo)) { //Hemos encontrado un hijo que no pertenece a la rama
         //Añadimos a camino_ el nodo
         nodo_hijo.h = FuncionHeuristica(nodo_hijo); 
         if(nodo_hijo.i != nodo_actual.i && nodo_hijo.j != nodo_actual.j) { //En este caso, nos hemos movido en diagonal
-          nodo_hijo.g = camino_[nodo_hijo.pos_padre_].g + 10; 
+          nodo_hijo.g = camino_[nodo_hijo.pos_padre_].g + 7; 
         } else { 
             nodo_hijo.g = camino_[nodo_hijo.pos_padre_].g + 5; 
           }
@@ -113,9 +131,10 @@ void Arbol::BusquedaA()  {
 }
 
 //Función para mostrar el resultado de la búqueda. Recibimos en que posición del vector camino tenemos al nodo final
-void Arbol::MostrarResultado(const int pos_nodo_final) const {
+void Arbol::MostrarResultado(const int pos_nodo_final) {
+  std::ofstream fichero_salida{nombre_fichero_salida_, std::ios_base::out}; 
   if(pos_nodo_final == 0) {
-    std::cout << "No hay camino" << std::endl; 
+    fichero_salida << "No hay camino" << std::endl; 
   } else {
       bool final{false}; 
       std::vector<Nodo> camino_final; //Almacenamos aquí el recorrido en orden 
@@ -131,31 +150,33 @@ void Arbol::MostrarResultado(const int pos_nodo_final) const {
           if(final) {break; }
         }
       for(unsigned i{0}; i < camino_final.size() - 1; ++i) {
-        std::cout << "(" << camino_final[i].i << "," << camino_final[i].j << ") --> "; 
+        fichero_salida << "(" << camino_final[i].i << "," << camino_final[i].j << ") --> "; 
+        if(i != 0) { laberinto_.matrix_(camino_final[i].i, camino_final[i].j) = PATH_ID; }
       }  
-      std::cout << "(" << camino_final[camino_final.size() - 1].i << "," << camino_final[camino_final.size() - 1].j << ")" << std::endl;  
-      std::cout << "Coste del camino: " << camino_final[camino_final.size() - 1].g << std::endl << std::endl; 
+      fichero_salida << "(" << camino_final[camino_final.size() - 1].i << "," << camino_final[camino_final.size() - 1].j << ")" << std::endl;   
+      fichero_salida << "Coste del camino: " << camino_final[camino_final.size() - 1].g << std::endl << std::endl; 
+      fichero_salida << laberinto_ << std::endl << std::endl; 
     }
   
   //Mostramos los nodos visitados. Estos cerán los nodos cerrados
-  std::cout << "Nodos visitados: "; 
+  fichero_salida << "Nodos visitados: "; 
   for(unsigned i{0}; i < cerrados_.size() - 1; ++i) {
-    std::cout << "(" << cerrados_[i].i << "," << cerrados_[i].j << "), "; 
+    fichero_salida << "(" << cerrados_[i].i << "," << cerrados_[i].j << "), "; 
   }
-  std::cout << "(" << cerrados_[cerrados_.size() - 1].i << "," << cerrados_[cerrados_.size() - 1].j << ")" << std::endl << std::endl; 
+  fichero_salida<< "(" << cerrados_[cerrados_.size() - 1].i << "," << cerrados_[cerrados_.size() - 1].j << ")" << std::endl << std::endl; 
   
   //Finalmente, mostramos los nodos generados. Estos serán los nodos cerrados más los nodos abiertos
-  std::cout << "Nodos generados: "; 
+  fichero_salida << "Nodos generados: "; 
   for(unsigned i{0}; i < cerrados_.size() - 1; ++i) {
-    std::cout << "(" << cerrados_[i].i << "," << cerrados_[i].j << "), "; 
+    fichero_salida << "(" << cerrados_[i].i << "," << cerrados_[i].j << "), "; 
   }
-  std::cout << "(" << cerrados_[cerrados_.size() - 1].i << "," << cerrados_[cerrados_.size() - 1].j << ")" << std::endl << std::endl; 
+  fichero_salida << "(" << cerrados_[cerrados_.size() - 1].i << "," << cerrados_[cerrados_.size() - 1].j << ")"; 
 
   if(abiertos_.size() > 0) {
     for(unsigned i{0}; i < abiertos_.size() - 1; ++i) {
-      std::cout << ", (" << abiertos_[i].i << "," << abiertos_[i].j << ")"; 
+      fichero_salida << ", (" << abiertos_[i].i << "," << abiertos_[i].j << ")"; 
     }
-    std::cout << ", (" << abiertos_[abiertos_.size() - 1].i << ", " << abiertos_[abiertos_.size() - 1].j << ")" << std::endl; 
+    fichero_salida << ", (" << abiertos_[abiertos_.size() - 1].i << ", " << abiertos_[abiertos_.size() - 1].j << ")" << std::endl; 
   }
 
 
@@ -198,6 +219,31 @@ void Arbol::AnadirNodoAbierto(const Nodo& nodo) {
   }
 
 }
+
+//Consideraremos que un nodo ha quedado descartado cuando este nodo pertenece a la lista de nodos cerrados y no está abierto. Esto se debe a que si en alguna ocasión
+//generamos dos veces el mismo nodo tendremos uno en la lista de nodos abiertos y otro en la lista de cerrados. En ese caso el nodo no está descartado, simplemente 
+//cerramos uno de ellos por tener mayor f(n). Sin embargo, si está cerrado y no abierto, sabemos que tenemos que descartarlo
+bool Arbol::NodoDescartado(const Nodo& nodo) const {
+  bool cerrado{false}; 
+  for(unsigned i{0}; i < cerrados_.size(); ++i) {
+    if(nodo.i == cerrados_[i].i && nodo.j == cerrados_[i].j) {
+      cerrado = true; 
+      i = cerrados_.size(); //Salir del bucle
+    }
+  }
+  if(!cerrado) { return false; } //Si no está cerrado, sabemos que no está descartado
+  
+  //En este caso está cerrado, comprobamos si está abierto
+  bool descartado{true}; 
+  for(unsigned i{0}; i < abiertos_.size(); ++i) {
+    if(nodo.i == abiertos_[i].i && nodo.j == abiertos_[i].j) {
+      descartado = false; //En este caso no está descartado, pues ese nodo está abierto. EL nodo que encontramos con mismsas coordendas descartado es debido a que tenía mayor f(n)
+      i = abiertos_.size(); 
+    }
+  }
+
+  return descartado; 
+} 
 
 //Función para determinar el nuevo nodo a expandir. Será aquel abierto con menor f(n)
 const Nodo Arbol::DeterminarNuevoNodoActual() const {
