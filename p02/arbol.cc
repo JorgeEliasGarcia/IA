@@ -21,21 +21,25 @@ unsigned  Arbol::FuncionHeuristica(const Nodo& nodo) const {
 }
 
 //Implementación de la función heurística alternativa. Para ello tendremos en cuenta también los movimientos diagonales. Realizaremos tantos movimientos
-//diagonales como podamos para acercanos lo máximo a la casilla de final. También le agregaremos el costo de los movimientos laterales/horizontales necesarios
+//diagonales como podamos para acercanos lo máximo a la casilla de final. También le agregaremos el costo de los movimientos laterales/horizontales necesarios. Dará el
+//mayor h(n) existente, siendo admisible. 
 unsigned Arbol::FuncionHeuristicaAlternativa(const Nodo& nodo) const {
   int i_actual = nodo.i; 
   int j_actual = nodo.j; 
   unsigned mov_diagonales{0}; 
-  unsigned mov_lat_hor{0};  
-  while(i_actual != nodo_final_.i && j_actual != nodo_final_.j) {
-    if(i_actual != nodo_final_.j && j_actual != nodo_final_.j) {
-      if(i_actual < nodo_final_.i) 
-
+  unsigned mov_lat_ver{0};  
+  while(i_actual != nodo_final_.i || j_actual != nodo_final_.j) {
+    if(i_actual != nodo_final_.i && j_actual != nodo_final_.j) {
       ++mov_diagonales; 
-    }
+    } else { ++mov_lat_ver; } 
+    //Actualizamos el movimiento
+    if(i_actual < nodo_final_.i) {++i_actual; }
+    if(i_actual > nodo_final_.i) {--i_actual; }
+    if(j_actual < nodo_final_.j) {++j_actual; }
+    if(j_actual > nodo_final_.j) {--j_actual; } 
   }
-  unsigned x = 3; 
-  return x; 
+
+  return unsigned((mov_diagonales * 7) + (mov_lat_ver * 5)); 
 }
 
 //Función para cambiar el nodo inicial y final
@@ -107,6 +111,7 @@ void Arbol::BusquedaA()  {
       if(laberinto_.CasillaTransitable(nodo_hijo.i, nodo_hijo.j) && !NodoEnLaRama(nodo_hijo) && !NodoDescartado(nodo_hijo)) { //Hemos encontrado un hijo que no pertenece a la rama
         //Añadimos a camino_ el nodo
         nodo_hijo.h = FuncionHeuristica(nodo_hijo); 
+      //  nodo_hijo.h = FuncionHeuristicaAlternativa(nodo_hijo); 
         if(nodo_hijo.i != nodo_actual.i && nodo_hijo.j != nodo_actual.j) { //En este caso, nos hemos movido en diagonal
           nodo_hijo.g = camino_[nodo_hijo.pos_padre_].g + 7; 
         } else { 
@@ -135,6 +140,7 @@ void Arbol::MostrarResultado(const int pos_nodo_final) {
   std::ofstream fichero_salida{nombre_fichero_salida_, std::ios_base::out}; 
   if(pos_nodo_final == 0) {
     fichero_salida << "No hay camino" << std::endl; 
+    fichero_salida << laberinto_ << std::endl; 
   } else {
       bool final{false}; 
       std::vector<Nodo> camino_final; //Almacenamos aquí el recorrido en orden 
