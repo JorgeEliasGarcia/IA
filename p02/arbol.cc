@@ -66,6 +66,12 @@ void Arbol::ModificarNodoInicialFinal() {
     std::cout << "ERROR. Casilla no existente, se resolverá con las casillas especificadas en el fichero" << std::endl; 
     return; 
   }
+  
+  if(final_i == inicio_i && final_j == inicio_j) { //La casilla inicio no puede ser la de salida
+    std::cout << "ERROR. Casilla no existente, se resolverá con las casillas especificadas en el fichero" << std::endl; 
+    return; 
+  }
+
   //En este caso las casillas son correctas, por lo que modificamos el laberinto. Donde se encontraban las anteriores entrada y salida se colocará un obstáculo
   laberinto_.matrix_(laberinto_.i_start_, laberinto_.j_start_) = 1; 
   laberinto_.matrix_(laberinto_.i_end_, laberinto_.j_end_) = 1;
@@ -121,7 +127,7 @@ void Arbol::BusquedaA()  {
         nodo_hijo.pos_v_ = camino_.size(); 
         camino_.push_back(nodo_hijo); 
         //A continucación, analizamos si añadirlo a nodos Abiertos. También se encargará de añadirlo a cerrados si hace falta
-        AnadirNodoAbierto(nodo_hijo); //En caso de que el mismo nodo ya esté con menor f(n) no lo añadimos. En caso de que ya esté pero con menor f(n) lo añadimos y eliminamos el otro
+        AnadirNodoAbierto(nodo_hijo); //En caso de que el mismo nodo ya esté con menor f(n) no lo añadimos. En caso de que ya esté pero con menor f(n) lo añadimos y eliminamos el otro 
       }
     }
     //Hemos añadido los hijos del nodo actual al árbol, por lo que lo cerramos
@@ -131,7 +137,7 @@ void Arbol::BusquedaA()  {
       nodo_actual = DeterminarNuevoNodoActual(); 
     }       
   }
-  
+
   MostrarResultado(pos_nodo_final); 
 }
 
